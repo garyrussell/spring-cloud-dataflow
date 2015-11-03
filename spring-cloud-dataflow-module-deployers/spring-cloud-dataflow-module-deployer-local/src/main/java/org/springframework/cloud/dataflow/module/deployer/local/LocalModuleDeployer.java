@@ -25,6 +25,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.cloud.dataflow.core.ModuleDefinition;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.ModuleStatus;
@@ -41,6 +42,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Mark Fisher
  * @author Marius Bogoevici
  * @author Eric Bottard
+ * @author Gary Russell
  */
 public class LocalModuleDeployer implements ModuleDeployer {
 
@@ -60,13 +62,15 @@ public class LocalModuleDeployer implements ModuleDeployer {
 	@Override
 	public ModuleDeploymentId deploy(ModuleDeploymentRequest request) {
 		String module = request.getCoordinates().toString();
+		ModuleDefinition definition = request.getDefinition();
 		if (request.getCount() != 1) {
 			logger.warn("{} only supports a single instance per module; ignoring count={} for {}",
-					this.getClass().getSimpleName(), request.getCount(), request.getDefinition().getLabel());
+					this.getClass().getSimpleName(), request.getCount(), definition.getLabel());
 		}
 		Map<String, String> args = new HashMap<>();
-		args.putAll(request.getDefinition().getParameters());
+		args.putAll(definition.getParameters());
 		args.putAll(request.getDeploymentProperties());
+		args.put("spring.cloud.stream.group", definition.getGroup());
 
 		logger.info("deploying module: {}", module);
 		int port;
@@ -87,12 +91,12 @@ public class LocalModuleDeployer implements ModuleDeployer {
 		args.put("endpoints.shutdown.enabled", "true");
 		args.put("spring.main.show_banner", "false");
 		args.put(JMX_DEFAULT_DOMAIN_KEY, String.format("%s.%s",
-				request.getDefinition().getGroup(), request.getDefinition().getLabel()));
+				definition.getGroup(), definition.getLabel()));
 		args.put("endpoints.jmx.unique-names", "true");
 		ModuleLaunchRequest moduleLaunchRequest = new ModuleLaunchRequest(module, args);
 		launcher.launch(Collections.singletonList(moduleLaunchRequest));
-		ModuleDeploymentId id = new ModuleDeploymentId(request.getDefinition().getGroup(),
-				request.getDefinition().getLabel());
+		ModuleDeploymentId id = new ModuleDeploymentId(definition.getGroup(),
+				definition.getLabel());
 		this.deployedModules.put(id, moduleUrl);
 		return id;
 	}

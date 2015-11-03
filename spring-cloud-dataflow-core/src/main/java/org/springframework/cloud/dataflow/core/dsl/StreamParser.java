@@ -363,20 +363,20 @@ public class StreamParser extends ModuleParser {
 			channelScopeComponents.add(tokens.eat(TokenKind.IDENTIFIER));
 		}
 		List<Token> channelReferenceComponents = new ArrayList<Token>();
-		if (tapAllowed && firstToken.data.equalsIgnoreCase("tap")) {
-			if (tokens.peek(TokenKind.DOT)) {
-				if (channelScopeComponents.size() < 3) {
-					tokens.raiseException(firstToken.startPos,
-							DSLMessage.TAP_NEEDS_THREE_COMPONENTS);
-				}
-				String tokenData = channelScopeComponents.get(1).data;
-				// for Stream, tap:stream:XXX - the channel name is always indexed
-				// for Job, tap:job:XXX - the channel name can have "." in case of job notification channels
-				if (!tokenData.equalsIgnoreCase("stream") && !tokenData.equalsIgnoreCase("task")) {
-					tokens.raiseException(tokens.peek().startPos,
-							DSLMessage.ONLY_A_TAP_ON_A_STREAM_OR_TASK_CAN_BE_INDEXED);
-				}
-			}
+//		if (tapAllowed && firstToken.data.equalsIgnoreCase("tap")) {
+//			if (tokens.peek(TokenKind.DOT)) {
+//				if (channelScopeComponents.size() < 3) {
+//					tokens.raiseException(firstToken.startPos,
+//							DSLMessage.TAP_NEEDS_THREE_COMPONENTS);
+//				}
+//				String tokenData = channelScopeComponents.get(1).data;
+//				// for Stream, tap:stream:XXX - the channel name is always indexed
+//				// for Job, tap:job:XXX - the channel name can have "." in case of job notification channels
+//				if (!tokenData.equalsIgnoreCase("stream") && !tokenData.equalsIgnoreCase("task")) {
+//					tokens.raiseException(tokens.peek().startPos,
+//							DSLMessage.ONLY_A_TAP_ON_A_STREAM_OR_TASK_CAN_BE_INDEXED);
+//				}
+//			}
 			while (tokens.peek(TokenKind.DOT)) {
 				if (!tokens.isNextAdjacent()) {
 					tokens.raiseException(tokens.peek().startPos,
@@ -389,17 +389,17 @@ public class StreamParser extends ModuleParser {
 				}
 				channelReferenceComponents.add(tokens.eat(TokenKind.IDENTIFIER));
 			}
-		}
-		else if (tokens.peek(TokenKind.DOT)) {
-			if (tapAllowed) {
-				tokens.raiseException(tokens.peek().startPos,
-						DSLMessage.ONLY_A_TAP_ON_A_STREAM_OR_TASK_CAN_BE_INDEXED);
-			}
-			else {
-				tokens.raiseException(tokens.peek().startPos,
-						DSLMessage.CHANNEL_INDEXING_NOT_ALLOWED);
-			}
-		}
+//		}
+//		else if (tokens.peek(TokenKind.DOT)) {
+//			if (tapAllowed) {
+//				tokens.raiseException(tokens.peek().startPos,
+//						DSLMessage.ONLY_A_TAP_ON_A_STREAM_OR_TASK_CAN_BE_INDEXED);
+//			}
+//			else {
+//				tokens.raiseException(tokens.peek().startPos,
+//						DSLMessage.CHANNEL_INDEXING_NOT_ALLOWED);
+//			}
+//		}
 		// Verify the structure:
 		ChannelType channelType = null;
 		if (firstToken.data.equalsIgnoreCase("tap")) {

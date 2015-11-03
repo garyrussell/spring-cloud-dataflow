@@ -61,6 +61,11 @@ public class LocalModuleDeployerTests {
 				.setName("log")
 				.setParameter("spring.cloud.stream.bindings.input", "ticktock.0")
 				.build();
+		ModuleDefinition tapDefinition = new ModuleDefinition.Builder()
+				.setGroup("ticktocktap")
+				.setName("log")
+				.setParameter("spring.cloud.stream.bindings.input", "topic:ticktock.0")
+				.build();
 		ArtifactCoordinates timeCoordinates = new ArtifactCoordinates.Builder()
 				.setGroupId(GROUP_ID)
 				.setArtifactId("time-source")
@@ -75,8 +80,10 @@ public class LocalModuleDeployerTests {
 				.build();
 		ModuleDeploymentRequest time = new ModuleDeploymentRequest(timeDefinition, timeCoordinates);
 		ModuleDeploymentRequest log = new ModuleDeploymentRequest(logDefinition, logCoordinates);
+		ModuleDeploymentRequest tap = new ModuleDeploymentRequest(tapDefinition, logCoordinates);
 		deployer.deploy(time);
 		deployer.deploy(log);
+		deployer.deploy(tap);
 		// TODO: check status, then undeploy
 	}
 }
